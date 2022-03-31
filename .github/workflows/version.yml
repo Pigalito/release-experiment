@@ -1,0 +1,15 @@
+name: Auto Version
+on:
+  workflow_run:
+    workflows: ["Lint & Test"]
+    types: completed
+    branches: ["master"]
+
+- name:  'Automated Version Bump'
+  uses:  'phips28/gh-action-bump-version@master'
+  env:
+    GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  with:
+    minor-wording:  'feat'
+    major-wording:  'major'
+    patch-wording:  'fix'
