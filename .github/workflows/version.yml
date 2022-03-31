@@ -18,3 +18,4 @@ jobs:
           minor-wording: 'feat'
           major-wording: 'major'
           patch-wording: 'fix'
+          commit-message: '[skip ci] Increment version to {{version}}'
