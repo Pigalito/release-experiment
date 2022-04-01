@@ -1,11 +1,6 @@
 name: Manual deployment
 on: 
   workflow_dispatch:
-    inputs:
-      release:
-        description: 'Which github code release to push to production'
-        required: true 
-        type: release
 
 env:
   APP_NAME: test-deployments-application
@@ -21,6 +16,6 @@ jobs:
           aws_secret_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           application_name: ${{ env.APP_NAME }}
           environment_name: ${{ env.APP_NAME }}-production
-          version_label: ${{ env.APP_NAME }}-${{ github.event.inputs.release }}
+          version_label: ${{ env.APP_NAME }}-${{ github.event.workflow_dispatch.ref }}
           region: ${{ secrets.AWS_REGION }}
           wait_for_deployment: false
