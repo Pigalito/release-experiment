@@ -1,0 +1,41 @@
+name: Auto Deploy
+on:
+  release: 
+    types: ["published"]
+
+env:
+  APP_NAME: test-deployments-application
+
+jobs:
+  upload_package:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Configure AWS credentials 
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
+      - run: |
+          AWS_VERSION_LABEL=${{ env.APP_NAME }}-${{ github.event.release.name }}
+          S3_KEY="${{ env.APP_NAME }}/$AWS_VERSION_LABEL.zip"
+
+          zip -r ${{ env.APP_NAME }}.zip ./
+          
+          aws s3 cp ${{ env.APP_NAME }}.zip s3://${{ secrets.S3_BUCKET }}/${S3_KEY} --region ${{ secrets.AWS_REGION }}
+          aws elasticbeanstalk create-application-version --application-name ${{ env.APP_NAME }} --version-label $AWS_VERSION_LABEL --region ${{ secrets.AWS_REGION }} --source-bundle S3Bucket=${{ secrets.S3_BUCKET }},S3Key=${S3_KEY} --auto-create-application
+  deploy_package: 
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy to EB
+        uses: einaregilsson/beanstalk-deploy@v20
+        with:
+          aws_access_key: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws_secret_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          application_name: ${{ env.APP_NAME }}
+          environment_name: ${{ env.APP_NAME }}-staging
+          version_label: ${{ env.APP_NAME }}-${{ github.event.release.name }}
+          region: ${{ secrets.AWS_REGION }}
+          wait_for_deployment: false
