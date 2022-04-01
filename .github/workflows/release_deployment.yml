@@ -1,7 +1,7 @@
 name: Auto Deploy
 on:
   release: 
-    types: ["released"]
+    types: [published]
 
 env:
   APP_NAME: test-deployments-application
