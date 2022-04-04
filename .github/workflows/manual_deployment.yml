@@ -19,4 +19,4 @@ jobs:
         run: |
           aws elasticbeanstalk update-environment \
           --environment-name ${{ env.APP_NAME }}-production \
-          --version-label "${{ env.APP_NAME }}-${GITHUB_REF##*/}"
+          --version-label "${{ env.APP_NAME }}-$GITHUB_REF_NAME"
